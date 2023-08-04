@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     {
         maxMovementX = platformCollider.bounds.max.x - movementMargins;
         groundLayerMask = LayerMask.NameToLayer("Ground");
-        myRigidbody.maxAngularVelocity = GameManager.Instance.GameSpeed;
+        myRigidbody.maxAngularVelocity = GameManager.Instance.GameSpeed * 1.3f;
         myRigidbody.angularVelocity = new Vector3(myRigidbody.maxAngularVelocity, 0, 0);
     }
 
@@ -37,6 +37,12 @@ public class PlayerController : MonoBehaviour
         myRigidbody.velocity = new Vector3(xAxisInput, myRigidbody.velocity.y, 0);
         myRigidbody.angularVelocity = new Vector3(myRigidbody.maxAngularVelocity, 0, -xAxisInput);
         RestrictPlayerToPlatform();
+    }
+
+    public void OnDifficultyUpListener()
+    {
+        myRigidbody.maxAngularVelocity = GameManager.Instance.GameSpeed * 1.3f;
+        myRigidbody.angularVelocity = new Vector3(myRigidbody.maxAngularVelocity, 0, 0);
     }
 
     private void RestrictPlayerToPlatform()

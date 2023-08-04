@@ -5,8 +5,10 @@ using UnityEngine;
 public class ObstacleSpawner : MonoBehaviour
 {
     [SerializeField] Transform[] spawnPoints;
-    [SerializeField] float minSpawnInterval = 2f;
-    [SerializeField] float maxSpawnInterval = 2f;
+
+    float minSpawnInterval;
+    float maxSpawnInterval;
+    float obstacleMoveSpeed;
 
     List<string> obstacles = new List<string>();
 
@@ -18,6 +20,17 @@ public class ObstacleSpawner : MonoBehaviour
         {
             obstacles.Add(item.name);
         }
+
+        obstacleMoveSpeed = GameManager.Instance.GameSpeed;
+        minSpawnInterval = GameManager.Instance.MinSpawnInterval;
+        maxSpawnInterval = GameManager.Instance.MaxSpawnInterval;
+    }
+
+    public void OnDifficultyUpListener()
+    {
+        obstacleMoveSpeed = GameManager.Instance.GameSpeed;
+        minSpawnInterval = GameManager.Instance.MinSpawnInterval;
+        maxSpawnInterval = GameManager.Instance.MaxSpawnInterval;
     }
 
     public void StartSpawnCoroutine()
@@ -36,7 +49,7 @@ public class ObstacleSpawner : MonoBehaviour
             GameObject newObstacleObj = ObjectPool.GetPooledObject(name);
 
             Obstacle newObstacle = newObstacleObj.GetComponent<Obstacle>();
-            newObstacleObj.GetComponent<Obstacle>().MoveSpeed = GameManager.Instance.GameSpeed;
+            newObstacleObj.GetComponent<Obstacle>().MoveSpeed = obstacleMoveSpeed;
 
             int allowedLaneIndex = Random.Range(0, newObstacle.AllowedLanes.Length);
 
@@ -48,6 +61,7 @@ public class ObstacleSpawner : MonoBehaviour
 
             newObstacleObj.transform.position = spawnPosition;
             newObstacleObj.SetActive(true);
+            GameManager.Instance.difficultyUpEvent.AddListener(newObstacle.OnDifficultyUpListener);
 
             float interval = Random.Range(minSpawnInterval, maxSpawnInterval);
 

@@ -16,4 +16,9 @@ public class GroundScrolling : MonoBehaviour
         float offset = Time.time * scrollSpeed;
         groundRenderer.material.SetTextureOffset("_MainTex", new Vector2(0, -offset));
     }
+
+    public void OnDifficultyUpListener()
+    {
+        scrollSpeed += (1 / 12f);
+    }
 }

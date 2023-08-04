@@ -32,6 +32,11 @@ public class Obstacle : MonoBehaviour
         transform.Translate(Vector3.back * Time.deltaTime * moveSpeed);
     }
 
+    public void OnDifficultyUpListener()
+    {
+        moveSpeed = GameManager.Instance.GameSpeed;
+    }
+
     IEnumerator CheckPlayerDodged()
     {
         while (true)

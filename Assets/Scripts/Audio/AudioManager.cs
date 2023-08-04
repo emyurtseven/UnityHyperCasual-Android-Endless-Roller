@@ -103,6 +103,7 @@ public static class AudioManager
     public static void PlayMusicFadeIn(AudioClipName clipName, float volume, float fadeDuration, float fadeDelay = 0)
     {
         musicPlayer.StopAllCoroutines();
+        musicPlayer.AudioSource.loop = true;
         musicPlayer.PlayMusicFadeIn(audioClips[clipName], volume, fadeDuration, fadeDelay);
     }
 
