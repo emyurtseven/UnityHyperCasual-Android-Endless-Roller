@@ -4,16 +4,48 @@ using UnityEngine;
 
 public class Obstacle : MonoBehaviour
 {
-    [SerializeField] float moveSpeed = 1f;
+    [SerializeField] int[] allowedLanes;
 
-    void Start()
+    Transform playerTransform;
+    float moveSpeed = 1f;
+
+    public int[] AllowedLanes { get => allowedLanes; set => allowedLanes = value; }
+    public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
+
+    void Awake()
     {
-        StartCoroutine(CheckOutOfGame());
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+
+    private void OnEnable() 
+    {
+        StartCoroutine(CheckPlayerDodged());
+    }
+
+    private void OnDisable() 
+    {
+        StopAllCoroutines();
     }
 
     void Update()
     {
         transform.Translate(Vector3.back * Time.deltaTime * moveSpeed);
+    }
+
+    IEnumerator CheckPlayerDodged()
+    {
+        while (true)
+        {
+            if (transform.position.z < playerTransform.position.z)
+            {
+                AudioManager.PlaySfx(AudioClipName.ScoreUp, 0.5f);
+                GameManager.Instance.ScoreUp();
+                StartCoroutine(CheckOutOfGame());
+                yield break;
+            }
+
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 
     IEnumerator CheckOutOfGame()
@@ -22,7 +54,7 @@ public class Obstacle : MonoBehaviour
         {
             if (transform.position.z < -10)
             {
-                Destroy(gameObject);
+                ObjectPool.ReturnPooledObject(gameObject.name, gameObject);
                 yield break;
             }
             

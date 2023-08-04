@@ -4,15 +4,28 @@ using UnityEngine;
 
 public class PlayerCollision : MonoBehaviour
 {
+    bool isInvulnerable = false;
+    int obstacleLayerMask;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (GameManager.Instance.DebugMode)
+        {
+            isInvulnerable = true;
+        }
+        obstacleLayerMask = LayerMask.NameToLayer("Obstacle");
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnCollisionEnter(Collision other) 
     {
-        
+        if (isInvulnerable)
+            return;
+
+        if (other.gameObject.layer == obstacleLayerMask)
+        {
+            GameManager.Instance.RestartLevel();
+            AudioManager.StopMusic();
+        }
     }
 }

@@ -5,8 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    
-    [SerializeField] float moveSpeed;
+    [SerializeField] float dodgeSpeed;
     [SerializeField] float jumpSpeed;
     [SerializeField] float movementMargins;
 
@@ -29,13 +28,14 @@ public class PlayerController : MonoBehaviour
     {
         maxMovementX = platformCollider.bounds.max.x - movementMargins;
         groundLayerMask = LayerMask.NameToLayer("Ground");
-        myRigidbody.maxAngularVelocity = 14;
-        myRigidbody.angularVelocity = new Vector3(14, 0, 0);
+        myRigidbody.maxAngularVelocity = GameManager.Instance.GameSpeed;
+        myRigidbody.angularVelocity = new Vector3(myRigidbody.maxAngularVelocity, 0, 0);
     }
 
     void FixedUpdate()
     {
         myRigidbody.velocity = new Vector3(xAxisInput, myRigidbody.velocity.y, 0);
+        myRigidbody.angularVelocity = new Vector3(myRigidbody.maxAngularVelocity, 0, -xAxisInput);
         RestrictPlayerToPlatform();
     }
 
@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour
 
     void OnMove(InputValue value)
     {
-        xAxisInput =  value.Get<Vector2>().x * moveSpeed;
+        xAxisInput =  value.Get<Vector2>().x * dodgeSpeed;
     }
 
     void OnJump(InputValue value)
