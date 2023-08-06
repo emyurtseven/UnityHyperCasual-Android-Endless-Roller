@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class ObstacleSpawner : MonoBehaviour
 {
@@ -14,7 +16,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     void Start()
     {
-        Transform objPoolRoot = GameObject.FindGameObjectWithTag("ObjectPools").transform;
+        Transform objPoolRoot = GameObject.FindGameObjectWithTag("ObstaclePools").transform;
 
         foreach (Transform item in objPoolRoot)
         {
@@ -49,7 +51,18 @@ public class ObstacleSpawner : MonoBehaviour
             GameObject newObstacleObj = ObjectPool.GetPooledObject(name);
 
             Obstacle newObstacle = newObstacleObj.GetComponent<Obstacle>();
-            newObstacleObj.GetComponent<Obstacle>().MoveSpeed = obstacleMoveSpeed;
+
+            try
+            {
+                newObstacleObj.GetComponent<Obstacle>().MoveSpeed = obstacleMoveSpeed;
+            }
+            catch (System.NullReferenceException)
+            {
+                Debug.Log(newObstacleObj.name);
+
+            }
+
+
 
             int allowedLaneIndex = Random.Range(0, newObstacle.AllowedLanes.Length);
 

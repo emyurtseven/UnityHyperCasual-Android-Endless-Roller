@@ -12,9 +12,8 @@ GameObject:
   - component: {fileID: 3274861834641682325}
   - component: {fileID: 3274861834641682324}
   - component: {fileID: 3274861834641682323}
-  - component: {fileID: 1764564565927848518}
   m_Layer: 7
-  m_Name: CuboidObstacleLow
+  m_Name: CuboidObstacle3x1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -98,16 +97,3 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1764564565927848518
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3274861834641682321}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33a7dadd1154afe489f79b55b1b11dd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  allowedLanes: 000000000100000002000000

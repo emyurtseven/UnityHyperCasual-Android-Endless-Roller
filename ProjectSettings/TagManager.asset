@@ -5,7 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
-  - ObjectPools
+  - ObstaclePools
+  - GameManager
   layers:
   - Default
   - TransparentFX

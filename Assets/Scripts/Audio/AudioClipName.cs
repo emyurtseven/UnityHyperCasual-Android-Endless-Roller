@@ -4,7 +4,9 @@
 public enum AudioClipName
 {
     ScoreUp,
-    StartMenuMusic,
+    Music,
     WindyBackground,
-    LevelFinished
+    Confirm,
+    Impact,
+    Jump
 }

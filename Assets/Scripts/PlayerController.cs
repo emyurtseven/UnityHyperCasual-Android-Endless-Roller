@@ -83,6 +83,7 @@ public class PlayerController : MonoBehaviour
         if (isGrounded)
         {
             myRigidbody.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+            AudioManager.PlaySfx(AudioClipName.Jump, 1);
         }
     }
 

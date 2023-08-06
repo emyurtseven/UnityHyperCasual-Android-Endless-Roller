@@ -24,8 +24,10 @@ public class PlayerCollision : MonoBehaviour
 
         if (other.gameObject.layer == obstacleLayerMask)
         {
+            AudioManager.PlaySfx(AudioClipName.Impact);
+            Time.timeScale = 0;
+            AudioManager.FadeOutMusic(0, 0.2f, 0.1f, 0);
             GameManager.Instance.RestartLevel();
-            AudioManager.StopMusic();
         }
     }
 }

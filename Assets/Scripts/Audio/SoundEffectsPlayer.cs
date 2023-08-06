@@ -6,7 +6,8 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// Used for playing sound effects with fade-in, fade-out options.
 /// Attach this to a gameobject with AudioSource component.
-/// </summary>
+///
+[RequireComponent(typeof(AudioSource))]
 public class SoundEffectsPlayer : MonoBehaviour
 {
     AudioSource audioSource;    // AudioSource component attached to this object.
@@ -16,9 +17,8 @@ public class SoundEffectsPlayer : MonoBehaviour
     void Awake()
 	{
         // initialize audio manager and persist sfx player object across scenes
-        if (!AudioManager.SfxInitialized)
+        if (!AudioManager.Initialized)
         {
-            AudioManager.Initialize(this);
             audioSource = GetComponent<AudioSource>();
             DontDestroyOnLoad(gameObject);
         }

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 /// Used for playing music with fade-in, fade-out options.
 /// Attach this to a gameobject with AudioSource component.
 /// </summary>
+[RequireComponent(typeof(AudioSource))]
 public class MusicPlayer : MonoBehaviour
 {
     AudioSource audioSource;    // AudioSource component attached to this object.
@@ -18,16 +19,9 @@ public class MusicPlayer : MonoBehaviour
     void Awake()
 	{
         // initialize audio manager and persist musicplayer object across scenes
-        if (!AudioManager.MusicInitialized)
-        {
-            AudioManager.Initialize(this);
-            audioSource = GetComponent<AudioSource>();
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        DontDestroyOnLoad(gameObject);
+        audioSource = GetComponent<AudioSource>();
+        
     }
 
     // Mute/Unmute music player
@@ -63,14 +57,17 @@ public class MusicPlayer : MonoBehaviour
     public IEnumerator FadeInAudio(float finalVolume, float fadeDuration, float startDelay=0)
     {
         float volume = audioSource.volume;
-        yield return new WaitForSeconds(startDelay);
+        yield return new WaitForSecondsRealtime(startDelay);
 
-        audioSource.Play();
+        if (!audioSource.isPlaying)
+        {
+            audioSource.Play();
+        }
 
         while (volume <= finalVolume)
         {
             // increment volume and pitch timer values
-            volume += (Time.deltaTime / (fadeDuration * 5));
+            volume += (Time.unscaledDeltaTime / (fadeDuration * 5));
             // set volume based on volume curve set in editor, mapping timer to volume
             audioSource.volume = volume;
             yield return new WaitForEndOfFrame();
@@ -83,12 +80,12 @@ public class MusicPlayer : MonoBehaviour
     public IEnumerator FadeOutAudio(float finalVolume, float fadeDuration, float fadeDelay= 0)
     {
         float volume = audioSource.volume;
-        yield return new WaitForSeconds(fadeDelay);
+        yield return new WaitForSecondsRealtime(fadeDelay);
 
         while (volume >= finalVolume)
         {
             // increment volume and pitch timer values
-            volume -= (Time.deltaTime / fadeDuration);
+            volume -= (Time.unscaledDeltaTime / fadeDuration);
             // set volume based on volume curve set in editor, mapping timer to volume
             audioSource.volume = volume;
             yield return new WaitForEndOfFrame();

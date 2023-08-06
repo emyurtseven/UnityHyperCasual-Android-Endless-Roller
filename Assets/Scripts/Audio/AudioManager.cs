@@ -11,11 +11,10 @@ using UnityEngine;
 public static class AudioManager
 {
     // are scene objects initialized?
-    static bool musicInitialized = false;
-    static bool sfxInitialized = false;
+    static bool initialized = false;
 
     // script references on game objects in scene
-    static MusicPlayer musicPlayer;
+    static List<MusicPlayer> musicPlayers = new List<MusicPlayer>();
     static SoundEffectsPlayer sfxPlayer;
 
     // AudioClip library
@@ -23,34 +22,26 @@ public static class AudioManager
         new Dictionary<AudioClipName, AudioClip>();
 
 
-    /// <summary>
-    /// Gets whether or not the audio manager has been initialized
-    /// </summary>
-    public static bool SfxInitialized { get => sfxInitialized; }
-    public static bool MusicInitialized { get => musicInitialized; }
-    
-    public static MusicPlayer MusicPlayer { get => musicPlayer; }
     public static SoundEffectsPlayer SfxPlayer { get => sfxPlayer; }
-
-
-    /// <summary>
-    /// Initializes music player object.
-    /// </summary>
-    /// <param name="source">MusicPlayer script attached to the object</param>
-    public static void Initialize(MusicPlayer player)
-    {
-        musicPlayer = player;
-        musicInitialized = true;
-    }
+    public static bool Initialized { get => initialized; set => initialized = value; }
 
     /// <summary>
     /// Initializes sfx player object and populates AudioClip library.
     /// </summary>
     /// <param name="source">SoundEffectsPlayer script attached to the object</param>
-    public static void Initialize(SoundEffectsPlayer player)
+    public static void Initialize(int musicChannelCount)
     {
-        sfxPlayer = player;
-        sfxInitialized = true;
+        if (initialized)
+        {
+            return;
+        }
+
+        for (int i = 0; i < musicChannelCount; i++)
+        {
+            AddMusicPlayer();
+        }
+
+        sfxPlayer = AddSfxPlayer();
 
         foreach (AudioClipName clipName in Enum.GetValues(typeof(AudioClipName)))
         {
@@ -59,9 +50,36 @@ public static class AudioManager
 
             if (audioClip != null)
             {
-                audioClips.Add(clipName, audioClip);
+                audioClips.TryAdd(clipName, audioClip);
             }
         }
+
+        initialized = true;
+    }
+
+    public static bool HasMusicPlayer(int track)
+    {
+        return musicPlayers.Contains(musicPlayers[track]);
+    }
+
+    public static MusicPlayer GetMusicPlayer(int track)
+    {
+        return musicPlayers[track];
+    }
+
+    public static MusicPlayer AddMusicPlayer()
+    {
+        GameObject newPlayerObj = new GameObject($"MusicPlayer({musicPlayers.Count})");
+        MusicPlayer musicPlayer = newPlayerObj.AddComponent<MusicPlayer>();
+        musicPlayers.Add(musicPlayer);
+        return musicPlayer;
+    }
+
+    private static SoundEffectsPlayer AddSfxPlayer()
+    {
+        GameObject newPlayerObj = new GameObject("SfxPlayer");
+        SoundEffectsPlayer sfxPlayer = newPlayerObj.AddComponent<SoundEffectsPlayer>();
+        return sfxPlayer;
     }
 
     /// <summary>
@@ -82,51 +100,51 @@ public static class AudioManager
     /// </summary>
     /// <param name="clipName"></param>
     /// <param name="volume"></param>
-    public static void PlayMusic(AudioClipName clipName, float volume=1f)
+    public static void PlayMusic(int track, AudioClipName clipName, float volume=1f)
     {
-        musicPlayer.AudioSource.Stop();
+        musicPlayers[track].AudioSource.Stop();
         
         if (!audioClips.ContainsKey(clipName))
         {
             Debug.LogWarning("Audio file {name} missing");
             return;
         }
-        musicPlayer.AudioSource.clip = audioClips[clipName];
-        musicPlayer.AudioSource.loop = true;
-        musicPlayer.AudioSource.volume = volume;
-        musicPlayer.AudioSource.Play();
+        musicPlayers[track].AudioSource.clip = audioClips[clipName];
+        musicPlayers[track].AudioSource.loop = true;
+        musicPlayers[track].AudioSource.volume = volume;
+        musicPlayers[track].AudioSource.Play();
     }
 
     /// <summary>
     /// Static wrapper function. Implemented in MusicPlayer script.
     /// </summary>
-    public static void PlayMusicFadeIn(AudioClipName clipName, float volume, float fadeDuration, float fadeDelay = 0)
+    public static void PlayMusicFadeIn(int track, AudioClipName clipName, float volume, float fadeDuration, float fadeDelay = 0)
     {
-        musicPlayer.StopAllCoroutines();
-        musicPlayer.AudioSource.loop = true;
-        musicPlayer.PlayMusicFadeIn(audioClips[clipName], volume, fadeDuration, fadeDelay);
+        musicPlayers[track].StopAllCoroutines();
+        musicPlayers[track].AudioSource.loop = true;
+        musicPlayers[track].PlayMusicFadeIn(audioClips[clipName], volume, fadeDuration, fadeDelay);
     }
 
     /// <summary>
     /// Static wrapper function. Implemented in MusicPlayer script.
     /// </summary>
-    public static void FadeInMusic(float finalVolume, float fadeDuration, float fadeDelay=0)
+    public static void FadeInMusic(int track, float finalVolume, float fadeDuration, float fadeDelay=0)
     {
-        musicPlayer.StopAllCoroutines();
-        musicPlayer.StartCoroutine(musicPlayer.FadeInAudio(finalVolume, fadeDuration, fadeDelay));
+        musicPlayers[track].StopAllCoroutines();
+        musicPlayers[track].StartCoroutine(musicPlayers[track].FadeInAudio(finalVolume, fadeDuration, fadeDelay));
     }
 
     /// <summary>
     /// Static wrapper function. Implemented in MusicPlayer script.
     /// </summary>
-    public static void FadeOutMusic(float finalVolume, float fadeDuration, float fadeDelay=0)
+    public static void FadeOutMusic(int track, float finalVolume, float fadeDuration, float fadeDelay=0)
     {
-        musicPlayer.StopAllCoroutines();
-        musicPlayer.StartCoroutine(musicPlayer.FadeOutAudio(finalVolume, fadeDuration, fadeDelay));
+        musicPlayers[track].StopAllCoroutines();
+        musicPlayers[track].StartCoroutine(musicPlayers[track].FadeOutAudio(finalVolume, fadeDuration, fadeDelay));
     }
 
-    public static void StopMusic()
+    public static void StopMusic(int track)
     {
-        musicPlayer.Stop();
+        musicPlayers[track].Stop();
     }
 }

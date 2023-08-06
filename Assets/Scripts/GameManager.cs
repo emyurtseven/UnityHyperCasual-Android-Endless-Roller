@@ -8,19 +8,29 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] float gameSpeedStart = 10f;
+    [SerializeField] float gravity = 15f;
+
+    [Header("Difficulty settings")]
+    [SerializeField] float startingMinSpawnInterval = 1.5f;
+    [SerializeField] float startingMaxSpawnInterval = 2.5f;
+    [SerializeField] int difficultyUpThreshold = 15;
+    [Tooltip("GameSpeed increases by this amount upon difficulty up")]
+    [SerializeField] float gameSpeedIncrement = 1f;
+    [Tooltip("Min spawn interval decreases by this amount upon difficulty up")]
+    [SerializeField] float minSpawnDecrement = 0.1f;
+    [Tooltip("Max spawn interval decreases by this amount upon difficulty up")]
+    [SerializeField] float maxSpawnDecrement = 0.2f;
     public UnityEvent difficultyUpEvent;
 
-    [SerializeField] float gameSpeedDefault = 10f;
-    [SerializeField] float gravity = 15f;
-    [SerializeField] float minSpawnIntervalDefault = 1.5f;
-    [SerializeField] float maxSpawnIntervalDefault = 2.5f;
-
+    [Header("Object references")]
     [SerializeField] ObstacleSpawner obstacleSpawner; 
     [SerializeField] GameObject scorePanel;
     [SerializeField] GameObject mainMenuPanel;
     [SerializeField] GameObject inputPanel;
     [SerializeField] TextMeshProUGUI highScoreText;
 
+    [Header("Other settings")]
     [SerializeField] int objectPoolSize = 5;
     [SerializeField] bool debugMode = false;
 
@@ -37,9 +47,13 @@ public class GameManager : MonoBehaviour
     public bool DebugMode { get => debugMode; }
     public float MinSpawnInterval { get => minIntervalCurrent; }
     public float MaxSpawnInterval { get => maxIntervalCurrent; }
+    
+
 
     void Awake()
     {
+        AudioManager.Initialize(2);
+
         Time.timeScale = 0;
         Physics.gravity = new Vector3(0, -gravity, 0);
 
@@ -48,13 +62,20 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
 
-        minIntervalCurrent = minSpawnIntervalDefault;
-        maxIntervalCurrent = maxSpawnIntervalDefault;
-        gameSpeedCurrent = gameSpeedDefault;
+        minIntervalCurrent = startingMinSpawnInterval;
+        maxIntervalCurrent = startingMaxSpawnInterval;
+        gameSpeedCurrent = gameSpeedStart;
     }
 
     private void Start()
     {
+        ObjectPool.Initialize(objectPoolSize);
+
+        if (debugMode)
+        {
+            Debug.LogWarning("Debug mode active, only certain shapes are spawned");
+        }
+        
         if (PlayerPrefs.HasKey("highScore"))
         {
             highScore = PlayerPrefs.GetInt("highScore");
@@ -66,7 +87,15 @@ public class GameManager : MonoBehaviour
 
         highScoreText.text = "High Score: " + highScore.ToString();
         scoreText = scorePanel.GetComponent<TextMeshProUGUI>();
-        ObjectPool.Initialize(objectPoolSize);
+
+        if (!AudioManager.GetMusicPlayer(0).IsPlaying)
+        {
+            AudioManager.PlayMusicFadeIn(0, AudioClipName.Music, 0.5f, 1, 0.2f);
+        }
+        else
+        {
+            AudioManager.FadeInMusic(0, 0.5f, 1f, 0);
+        }
     }
 
     public void OnStartPressed()
@@ -76,13 +105,22 @@ public class GameManager : MonoBehaviour
         mainMenuPanel.SetActive(false);
         inputPanel.SetActive(true);
         scoreText.text = score.ToString();
-        AudioManager.PlayMusicFadeIn(AudioClipName.WindyBackground, 0.2f, 4, 0); 
+        AudioManager.PlayMusicFadeIn(1, AudioClipName.WindyBackground, 0.2f, 2, 0); 
         obstacleSpawner.StartSpawnCoroutine();
+
+        AudioManager.PlaySfx(AudioClipName.Confirm);
     }
 
     public void RestartLevel()
     {
+        StartCoroutine(RestartCoroutine());
+    }
+
+    private IEnumerator RestartCoroutine()
+    {
         SaveScore();
+        yield return new WaitForSecondsRealtime(1.5f);
+        Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -104,11 +142,11 @@ public class GameManager : MonoBehaviour
 
     private void CheckDifficultyUp()
     {
-        if (score % 15 == 0)
+        if (score % difficultyUpThreshold == 0)
         {
-            gameSpeedCurrent += 1f;
-            minIntervalCurrent -= 0.1f;
-            maxIntervalCurrent -= 0.2f;
+            gameSpeedCurrent += gameSpeedIncrement;
+            minIntervalCurrent -= minSpawnDecrement;
+            maxIntervalCurrent -= maxSpawnDecrement;
 
             difficultyUpEvent.Invoke();
         }

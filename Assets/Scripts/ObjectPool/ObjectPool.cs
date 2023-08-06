@@ -5,8 +5,8 @@ using UnityEngine;
 
 public static class PrefabPaths
 {
-    public const string obstaclesRootPath = "Obstacles/Prefabs";
-    public const string debugRootPath = "Obstacles/Debug";
+    public const string obstaclesRootPath = "Prefabs/Obstacles/GameReady";
+    public const string debugRootPath = "Prefabs/Obstacles/Debug";
 }
 
 /// <summary>
@@ -28,24 +28,26 @@ public static class ObjectPool
         objectPools = new Dictionary<string, List<GameObject>>();
         pooledPrefabs = new Dictionary<string, GameObject>();
 
-        GameObject objectPoolsHolder = new GameObject("ObjectPools");
-        objectPoolsHolder.tag = "ObjectPools";
+        GameObject objectPoolsRoot = new GameObject("ObjectPools");
+        GameObject obstaclePool = new GameObject("ObstaclePools");
+        obstaclePool.transform.parent = objectPoolsRoot.transform;
+        obstaclePool.tag = "ObstaclePools";
 
-        GameObject[] prefabs;
+        GameObject[] obstaclePrefabs;
         if (GameManager.Instance.DebugMode)
         {
-            prefabs = Resources.LoadAll<GameObject>(PrefabPaths.debugRootPath);
+            obstaclePrefabs = Resources.LoadAll<GameObject>(PrefabPaths.debugRootPath);
         }
         else
         {
-            prefabs = Resources.LoadAll<GameObject>(PrefabPaths.obstaclesRootPath);
+            obstaclePrefabs = Resources.LoadAll<GameObject>(PrefabPaths.obstaclesRootPath);
         }
 
-        foreach (var prefab in prefabs)
+        foreach (var prefab in obstaclePrefabs)
         {
             string name = prefab.name;
             GameObject child = new GameObject(name);
-            child.transform.parent = objectPoolsHolder.transform;
+            child.transform.parent = obstaclePool.transform;
 
             pooledPrefabs.Add(name, prefab);
             objectPools.Add(name, new List<GameObject>(prefabPoolSize));
@@ -54,6 +56,21 @@ public static class ObjectPool
             {
                 objectPools[name].Add(GetNewObject(name));
             }
+        }
+
+        GameObject cloudPrefab = Resources.Load<GameObject>("Prefabs/Cloud");
+
+        string cloudName = cloudPrefab.name;
+        
+        pooledPrefabs.Add(cloudName, cloudPrefab);
+        objectPools.Add(cloudName, new List<GameObject>(20));
+
+        GameObject childCont = new GameObject(cloudName);
+        childCont.transform.parent = objectPoolsRoot.transform;
+
+        for (int i = 0; i < objectPools[cloudName].Capacity; i++)
+        {
+            objectPools[cloudName].Add(GetNewObject(cloudName));
         }
     }
 
@@ -104,6 +121,7 @@ public static class ObjectPool
         }
         else if (!objectPools.ContainsKey(name))
         {
+            Debug.LogWarning($"Object pool {name} doesn't exist. Cannot remove {obj.name} object.");
             return false;
         }
         
