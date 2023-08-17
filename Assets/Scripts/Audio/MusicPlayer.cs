@@ -70,8 +70,10 @@ public class MusicPlayer : MonoBehaviour
             volume += (Time.unscaledDeltaTime / (fadeDuration * 5));
             // set volume based on volume curve set in editor, mapping timer to volume
             audioSource.volume = volume;
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
+
+        audioSource.volume = finalVolume;
     }
 
     /// <summary>
@@ -88,7 +90,7 @@ public class MusicPlayer : MonoBehaviour
             volume -= (Time.unscaledDeltaTime / fadeDuration);
             // set volume based on volume curve set in editor, mapping timer to volume
             audioSource.volume = volume;
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
 }

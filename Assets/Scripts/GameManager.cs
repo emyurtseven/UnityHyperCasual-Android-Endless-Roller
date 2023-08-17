@@ -24,11 +24,7 @@ public class GameManager : MonoBehaviour
     public UnityEvent difficultyUpEvent;
 
     [Header("Object references")]
-    [SerializeField] ObstacleSpawner obstacleSpawner; 
-    [SerializeField] GameObject scorePanel;
-    [SerializeField] GameObject mainMenuPanel;
-    [SerializeField] GameObject inputPanel;
-    [SerializeField] TextMeshProUGUI highScoreText;
+    [SerializeField] GameObject spawner; 
 
     [Header("Other settings")]
     [SerializeField] int objectPoolSize = 5;
@@ -36,7 +32,6 @@ public class GameManager : MonoBehaviour
 
     int score = 0;
     int highScore;
-    TextMeshProUGUI scoreText;
 
     float gameSpeedCurrent;
     float minIntervalCurrent;
@@ -47,8 +42,6 @@ public class GameManager : MonoBehaviour
     public bool DebugMode { get => debugMode; }
     public float MinSpawnInterval { get => minIntervalCurrent; }
     public float MaxSpawnInterval { get => maxIntervalCurrent; }
-    
-
 
     void Awake()
     {
@@ -69,13 +62,29 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+
         ObjectPool.Initialize(objectPoolSize);
 
         if (debugMode)
         {
             Debug.LogWarning("Debug mode active, only certain shapes are spawned");
         }
-        
+
+        LoadHighScore();
+        UIManager.Instance.DisplayHighScore(highScore);
+
+        if (!AudioManager.GetMusicPlayer(0).IsPlaying)
+        {
+            AudioManager.PlayMusicFadeIn(0, AudioClipName.Music, 0.65f, 1, 0.2f);
+        }
+        else
+        {
+            AudioManager.FadeInMusic(0, 0.5f, 1f, 0);
+        }
+    }
+
+    private void LoadHighScore()
+    {
         if (PlayerPrefs.HasKey("highScore"))
         {
             highScore = PlayerPrefs.GetInt("highScore");
@@ -84,30 +93,16 @@ public class GameManager : MonoBehaviour
         {
             highScore = 0;
         }
-
-        highScoreText.text = "High Score: " + highScore.ToString();
-        scoreText = scorePanel.GetComponent<TextMeshProUGUI>();
-
-        if (!AudioManager.GetMusicPlayer(0).IsPlaying)
-        {
-            AudioManager.PlayMusicFadeIn(0, AudioClipName.Music, 0.5f, 1, 0.2f);
-        }
-        else
-        {
-            AudioManager.FadeInMusic(0, 0.5f, 1f, 0);
-        }
     }
 
     public void OnStartPressed()
     {
         Time.timeScale = 1;
-        scorePanel.SetActive(true);
-        mainMenuPanel.SetActive(false);
-        inputPanel.SetActive(true);
-        scoreText.text = score.ToString();
-        AudioManager.PlayMusicFadeIn(1, AudioClipName.WindyBackground, 0.2f, 2, 0); 
-        obstacleSpawner.StartSpawnCoroutine();
 
+        AudioManager.PlayMusicFadeIn(1, AudioClipName.WindyBackground, 0.25f, 2, 0); 
+        spawner.GetComponent<ObstacleSpawner>().StartSpawnCoroutine();
+        spawner.GetComponent<CloudSpawner>().StartSpawnCoroutine();
+        UIManager.Instance.DisplayScore(score);
         AudioManager.PlaySfx(AudioClipName.Confirm);
     }
 
@@ -135,8 +130,7 @@ public class GameManager : MonoBehaviour
     public void ScoreUp()
     {
         score++;
-        scoreText.text = score.ToString();
-
+        UIManager.Instance.DisplayScore(score);
         CheckDifficultyUp();
     }
 

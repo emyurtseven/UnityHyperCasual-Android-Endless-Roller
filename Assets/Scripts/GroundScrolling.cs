@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GroundScrolling : MonoBehaviour
@@ -5,10 +7,13 @@ public class GroundScrolling : MonoBehaviour
     public float scrollSpeed = 1.0f;
     private Renderer groundRenderer;
 
+    float ratio;
+
     private void Start()
     {
         groundRenderer = GetComponent<Renderer>();
-        scrollSpeed = GameManager.Instance.GameSpeed / 12; 
+        ratio = (transform.localScale.z * 4f) / 5f; 
+        scrollSpeed = GameManager.Instance.GameSpeed / ratio; 
     }
 
     private void Update()
@@ -19,6 +24,18 @@ public class GroundScrolling : MonoBehaviour
 
     public void OnDifficultyUpListener()
     {
-        scrollSpeed += (1 / 12f);
+        StartCoroutine(SpeedUp());
+    }
+    
+    IEnumerator SpeedUp()
+    {
+        float newSpeed = scrollSpeed += (1 / ratio);
+        while (scrollSpeed < newSpeed)
+        {
+            scrollSpeed += Time.deltaTime;
+            yield return null;
+        }
+
+        scrollSpeed = newSpeed;
     }
 }

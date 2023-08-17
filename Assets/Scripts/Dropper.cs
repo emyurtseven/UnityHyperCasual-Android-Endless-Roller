@@ -4,6 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// This script is attached to objects that detect the player coming close and drop from above.
+/// CURRENTLY UNUSED
 /// </summary>
 public class Dropper : MonoBehaviour
 {

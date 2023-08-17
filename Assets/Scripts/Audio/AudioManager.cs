@@ -120,6 +120,11 @@ public static class AudioManager
     /// </summary>
     public static void PlayMusicFadeIn(int track, AudioClipName clipName, float volume, float fadeDuration, float fadeDelay = 0)
     {
+        if (!audioClips.ContainsKey(clipName))
+        {
+            Debug.LogWarning("AudioClip {clipName} not found. Check files or AudioClipName enum.");
+            return;
+        }
         musicPlayers[track].StopAllCoroutines();
         musicPlayers[track].AudioSource.loop = true;
         musicPlayers[track].PlayMusicFadeIn(audioClips[clipName], volume, fadeDuration, fadeDelay);

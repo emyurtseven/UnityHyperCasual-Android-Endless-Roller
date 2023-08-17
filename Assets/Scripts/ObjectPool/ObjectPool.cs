@@ -10,7 +10,9 @@ public static class PrefabPaths
 }
 
 /// <summary>
-/// Provides object pooling for bullets and enemies
+/// Provides object pooling for obstacles.
+/// This script loads prefabs and uses their names to initialize and manage the pools, 
+/// instead of using the usual PooledObjectType enum system.
 /// </summary>
 public static class ObjectPool
 {

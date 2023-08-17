@@ -44,7 +44,7 @@ public class SoundEffectsPlayer : MonoBehaviour
             volume += (Time.deltaTime / fadeDuration);
             // set volume based on volume curve set in editor, mapping timer to volume
             audioSource.volume = volume;
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
 
@@ -62,7 +62,7 @@ public class SoundEffectsPlayer : MonoBehaviour
             volume -= (Time.deltaTime / fadeDuration);
             // set volume based on volume curve set in editor, mapping timer to volume
             audioSource.volume = volume;
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
 }

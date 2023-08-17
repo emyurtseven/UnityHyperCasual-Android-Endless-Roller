@@ -19,6 +19,7 @@ public class Obstacle : MonoBehaviour
 
     private void OnEnable() 
     {
+        StartCoroutine(FadeInObject());
         StartCoroutine(CheckPlayerDodged());
     }
 
@@ -39,6 +40,7 @@ public class Obstacle : MonoBehaviour
 
     IEnumerator CheckPlayerDodged()
     {
+        WaitForSeconds delay = new WaitForSeconds(0.1f);
         while (true)
         {
             if (transform.position.z < playerTransform.position.z)
@@ -49,12 +51,13 @@ public class Obstacle : MonoBehaviour
                 yield break;
             }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return delay;
         }
     }
 
     IEnumerator CheckOutOfGame()
     {
+        WaitForSeconds delay = new WaitForSeconds(1f);
         while (true)
         {
             if (transform.position.z < -10)
@@ -63,7 +66,26 @@ public class Obstacle : MonoBehaviour
                 yield break;
             }
             
-            yield return new WaitForSeconds(1f);
+            yield return delay;
+        }
+    }
+
+    private IEnumerator FadeInObject()
+    {
+        float alpha = 0;
+        Color originalColor = transform.GetChild(0).GetComponent<MeshRenderer>().materials[0].color;
+
+        while (alpha <= 1)
+        {
+            alpha += 0.01f;
+            Color color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+
+            foreach (Transform piece in transform)
+            {
+                piece.gameObject.GetComponent<MeshRenderer>().materials[0].color = color;
+            }
+
+            yield return null;
         }
     }
 }

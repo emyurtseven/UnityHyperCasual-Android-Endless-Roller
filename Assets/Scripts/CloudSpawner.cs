@@ -8,10 +8,10 @@ public class CloudSpawner : MonoBehaviour
     [SerializeField] float meanSpawnInterval = 2f;
     List<GameObject> activeCloudObjects = new List<GameObject>();
 
-    private void Start() 
+    public void StartSpawnCoroutine()
     {
         StartCoroutine(SpawnClouds());
-        StartCoroutine(DespawnClouds());    
+        StartCoroutine(DespawnClouds());
     }
 
     private IEnumerator SpawnClouds()
@@ -21,13 +21,13 @@ public class CloudSpawner : MonoBehaviour
             GameObject newCloud = ObjectPool.GetPooledObject("Cloud");
             activeCloudObjects.Add(newCloud);
 
-            float posX = Random.Range(8f, 35f);
+            float posX = Random.Range(8f, 25f);
             int sign = Random.Range(0, 2) * 2 - 1;
             posX *= sign;
 
             Vector3 position = new Vector3(posX,
                                             Random.Range(5, 15),
-                                            170f);
+                                            transform.position.z);
 
             newCloud.transform.position = position;
             float scaleFactor = Random.Range(1f, 3f);
@@ -50,6 +50,8 @@ public class CloudSpawner : MonoBehaviour
 
     private IEnumerator DespawnClouds()
     {
+        WaitForSeconds delay = new WaitForSeconds(1f);
+
         while (true)
         {
             for (int i = activeCloudObjects.Count - 1; i >= 0; i--)
@@ -60,7 +62,7 @@ public class CloudSpawner : MonoBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(1f);
+            yield return delay;
         }
     }
 }

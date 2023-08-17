@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerCollision : MonoBehaviour
 {
+    [SerializeField] GameObject impactEffect;
+    
     bool isInvulnerable = false;
     int obstacleLayerMask;
 
@@ -17,16 +19,18 @@ public class PlayerCollision : MonoBehaviour
         obstacleLayerMask = LayerMask.NameToLayer("Obstacle");
     }
 
-    private void OnCollisionEnter(Collision other) 
+    private void OnCollisionEnter(Collision collision) 
     {
         if (isInvulnerable)
             return;
 
-        if (other.gameObject.layer == obstacleLayerMask)
+        if (collision.gameObject.layer == obstacleLayerMask)
         {
+            Instantiate(impactEffect, collision.GetContact(0).point, Quaternion.identity);
             AudioManager.PlaySfx(AudioClipName.Impact);
             Time.timeScale = 0;
-            AudioManager.FadeOutMusic(0, 0.2f, 0.1f, 0);
+            AudioManager.FadeOutMusic(0, 0.3f, 0.1f, 0);
+            AudioManager.StopMusic(1);
             GameManager.Instance.RestartLevel();
         }
     }
