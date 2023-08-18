@@ -6,14 +6,18 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
+/// <summary>
+/// General script for all game oprtions and behaviours.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
+    [Header("Default starting values")]
     [SerializeField] float gameSpeedStart = 10f;
     [SerializeField] float gravity = 15f;
-
-    [Header("Difficulty settings")]
     [SerializeField] float startingMinSpawnInterval = 1.5f;
     [SerializeField] float startingMaxSpawnInterval = 2.5f;
+
+    [Header("Difficulty settings")]
     [SerializeField] int difficultyUpThreshold = 15;
     [Tooltip("GameSpeed increases by this amount upon difficulty up")]
     [SerializeField] float gameSpeedIncrement = 1f;
@@ -21,13 +25,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] float minSpawnDecrement = 0.1f;
     [Tooltip("Max spawn interval decreases by this amount upon difficulty up")]
     [SerializeField] float maxSpawnDecrement = 0.2f;
-    public UnityEvent difficultyUpEvent;
+
+    // listeners for this are set in editor instead of scripts
+    public UnityEvent difficultyUpEvent;    
 
     [Header("Object references")]
     [SerializeField] GameObject spawner; 
 
     [Header("Other settings")]
     [SerializeField] int objectPoolSize = 5;
+    [SerializeField] float levelRestartDelay = 1.5f;
     [SerializeField] bool debugMode = false;
 
     int score = 0;
@@ -62,17 +69,20 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-
         ObjectPool.Initialize(objectPoolSize);
 
+#if UNITY_EDITOR
+        // warn in console if debug mode is active
         if (debugMode)
         {
             Debug.LogWarning("Debug mode active, only certain shapes are spawned");
         }
+#endif
 
         LoadHighScore();
         UIManager.Instance.DisplayHighScore(highScore);
 
+        // if this is the first time, start music. if we come from a reload, fade in already playing music.
         if (!AudioManager.GetMusicPlayer(0).IsPlaying)
         {
             AudioManager.PlayMusicFadeIn(0, AudioClipName.Music, 0.65f, 1, 0.2f);
@@ -83,6 +93,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Loads high score from player prefs.
+    /// </summary>
     private void LoadHighScore()
     {
         if (PlayerPrefs.HasKey("highScore"))
@@ -95,6 +108,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Listener for UI button. Starts the game loop.
+    /// </summary>
     public void OnStartPressed()
     {
         Time.timeScale = 1;
@@ -108,13 +124,17 @@ public class GameManager : MonoBehaviour
 
     public void RestartLevel()
     {
-        StartCoroutine(RestartCoroutine());
+        StartCoroutine(RestartLevelCoroutine());
     }
 
-    private IEnumerator RestartCoroutine()
+    /// <summary>
+    /// Restart game after a delay.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator RestartLevelCoroutine()
     {
         SaveScore();
-        yield return new WaitForSecondsRealtime(1.5f);
+        yield return new WaitForSecondsRealtime(levelRestartDelay);
         Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -127,6 +147,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Increment score. Called in Obstacle script.
+    /// </summary>
     public void ScoreUp()
     {
         score++;
@@ -134,6 +157,9 @@ public class GameManager : MonoBehaviour
         CheckDifficultyUp();
     }
 
+    /// <summary>
+    /// Checks if threshold number of obstacles have been cleared.
+    /// </summary>
     private void CheckDifficultyUp()
     {
         if (score % difficultyUpThreshold == 0)
@@ -142,7 +168,7 @@ public class GameManager : MonoBehaviour
             minIntervalCurrent -= minSpawnDecrement;
             maxIntervalCurrent -= maxSpawnDecrement;
 
-            difficultyUpEvent.Invoke();
+            difficultyUpEvent.Invoke();     // invoke difficultyUpEvent
         }
     }
 

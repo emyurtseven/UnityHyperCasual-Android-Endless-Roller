@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Scrolls the ground texture like a treadmill to give a moving effect.
+/// </summary>
 public class GroundScrolling : MonoBehaviour
 {
     public float scrollSpeed = 1.0f;
@@ -12,8 +16,8 @@ public class GroundScrolling : MonoBehaviour
     private void Start()
     {
         groundRenderer = GetComponent<Renderer>();
-        ratio = (transform.localScale.z * 4f) / 5f; 
-        scrollSpeed = GameManager.Instance.GameSpeed / ratio; 
+        ratio = (transform.localScale.z * 4f) / 5f;    // this formula is based solely on trial and error
+        scrollSpeed = GameManager.Instance.GameSpeed / ratio;  // scroll speed is dependent on game speed
     }
 
     private void Update()
@@ -27,6 +31,9 @@ public class GroundScrolling : MonoBehaviour
         StartCoroutine(SpeedUp());
     }
     
+    /// <summary>
+    /// Increases scroll speed when game speed goes up.
+    /// </summary>
     IEnumerator SpeedUp()
     {
         float newSpeed = scrollSpeed += (1 / ratio);

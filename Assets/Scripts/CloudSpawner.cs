@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Spawns moving clouds for visual improvement. 
+/// Attached to ObstacleSpawner object in scene.
+/// </summary>
 public class CloudSpawner : MonoBehaviour
 {
     [SerializeField] float cloudMoveSpeed = 25f;

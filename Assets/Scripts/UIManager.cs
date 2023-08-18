@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Manages UI elements and functionalities.
+/// </summary>
 public class UIManager : MonoBehaviour
 {
     [SerializeField] GameObject scorePanel;
@@ -21,6 +24,7 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance { get; private set; }
 
+    // add a static access to this class
     private void Awake() 
     {
         if (Instance == null)
@@ -47,10 +51,16 @@ public class UIManager : MonoBehaviour
         inputPanel.SetActive(true);
     }
 
+    /// <summary>
+    /// Since movement "buttons" are actually just images in this project, 
+    /// this function imitates a pressed visual effect, even when other input devices are used.
+    /// </summary>
     public void ModifyMoveButtonColors(InputAction.CallbackContext context)
     {
+        // read input from PlayerInput component
         float value = context.ReadValue<Vector2>().x;
 
+        // modify right or left button images according to input
         if (value > 0)
         {
             rightButton.color = buttonPressedColor;
@@ -68,6 +78,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Modifies jump "button" image when player is in air or not.
+    /// </summary>
     public void ModifyJumpButtonColor(bool isGrounded)
     {
         if (isGrounded)

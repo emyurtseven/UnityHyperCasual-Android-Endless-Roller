@@ -2,14 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Manages obstacle movement. Attached to obstacle objects in the scene. 
+/// </summary>
 public class Obstacle : MonoBehaviour
 {
-    [SerializeField] int[] allowedLanes;
+    [SerializeField] int[] allowedLanes;   // which one of the three lanes can this obstacle spawn from?
 
     Transform playerTransform;
     float moveSpeed = 1f;
 
-    public int[] AllowedLanes { get => allowedLanes; set => allowedLanes = value; }
+    public int[] AllowedLanes { get => allowedLanes; }
     public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
 
     void Awake()
@@ -17,6 +20,9 @@ public class Obstacle : MonoBehaviour
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
+    /// <summary>
+    /// OnEnable is used because obstacles are pooled and never destroyed 
+    /// </summary>
     private void OnEnable() 
     {
         StartCoroutine(FadeInObject());
@@ -30,14 +36,20 @@ public class Obstacle : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(Vector3.back * Time.deltaTime * moveSpeed);
+        transform.Translate(Vector3.back * Time.deltaTime * moveSpeed);  // move our obstacle towards player
     }
 
+    /// <summary>
+    /// Listener for difficulty up event which is invoked from GameManager
+    /// </summary>
     public void OnDifficultyUpListener()
     {
         moveSpeed = GameManager.Instance.GameSpeed;
     }
 
+    /// <summary>
+    /// Checks if player has gone past this obstacle.
+    /// </summary>
     IEnumerator CheckPlayerDodged()
     {
         WaitForSeconds delay = new WaitForSeconds(0.1f);
@@ -55,6 +67,9 @@ public class Obstacle : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Checks if obstacle has left the screen and is ready to return to object pool.
+    /// </summary>
     IEnumerator CheckOutOfGame()
     {
         WaitForSeconds delay = new WaitForSeconds(1f);
@@ -62,6 +77,7 @@ public class Obstacle : MonoBehaviour
         {
             if (transform.position.z < -10)
             {
+                // return this obstacle to pool
                 ObjectPool.ReturnPooledObject(gameObject.name, gameObject);
                 yield break;
             }
@@ -70,6 +86,9 @@ public class Obstacle : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Adds a fade in effect for newly spawned obstacles.
+    /// </summary>
     private IEnumerator FadeInObject()
     {
         float alpha = 0;

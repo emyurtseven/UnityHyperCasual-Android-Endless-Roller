@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// After particle system stops playing, destroys the object this script is attached to.
+/// </summary>
 public class ParticleEffectAutoDestroy : MonoBehaviour
 {
-    [SerializeField] bool OnlyDeactivate;
-
-	
 	void OnEnable()
 	{
 		StartCoroutine(CheckIfAlive());
